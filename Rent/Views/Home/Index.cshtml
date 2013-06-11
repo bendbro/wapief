@@ -1,0 +1,162 @@
+﻿<div id="main">
+    <p class="title" id="SelectorTitle">Ben's vehicle page</p>
+    <select class="selector" id="Makes" size="10" onchange="UpdateFromModels()"></select>
+    <select class="selector" id="Models" size="10" onchange="UpdateFromVehicles()"></select>
+    <select class="selector" id="Vehicles" size="10" onchange="GetVehicle()"></select>
+    <p class="title" id="SubmitTitle">Add a thing there</p>
+    <input id="submit" type ="text" onkeydown="checksubmit(this, event)" />
+</div>
+
+<style>
+    #main {
+        width: 100%;
+        height: auto;
+        margin: auto;
+    }
+
+    #main * {
+        background-color: white;
+	    border-color: darkgray;
+        color: gray;
+    }
+
+    .title {
+        width: 100%;
+        margin: 10px auto;
+        text-align: center;
+    }
+
+    .selector {
+        width: 30%;
+        margin: auto;
+        border-style: solid;
+        border-width: 1px;
+    }
+
+    #Makes {
+        margin-left: 5%;
+    }
+
+    #submit {
+        width: 90%;
+        margin: 0% 0% 5% 5%;
+        text-align: center;
+        border-style: solid;
+        border-width: 1px;
+    }
+</style>
+
+
+<script src="/Scripts/jquery-1.7.1.js"></script>
+<script>
+
+    var makeSelector = document.getElementById("Makes");
+    var modelSelector = document.getElementById("Models");
+    var vehicleSelector = document.getElementById("Vehicles");
+    var submitTitle = document.getElementById("SubmitTitle").innerHTML;
+    var selectorTitle = document.getElementById("SelectorTitle").innerHTML;
+
+    function clearSelector(selector) {
+        for (index in selector.options) {
+            selector.options.remove(index);
+        }
+    }
+
+    function UpdateSelector(selector, data) {
+        for (index in data) {
+            selector.options[selector.options.length] = new Option(data[index].Name, data[index].ID);
+        }
+    }
+
+    function getSelectedID(selector) {
+        if(selector.selectedIndex > 0)
+            return selector.options[selector.selectedIndex].value;
+        return -1;
+    }
+
+    function UpdateFromMakes() {
+        
+        clearSelector(makeSelector);
+        clearSelector(modelSelector);
+        clearSelector(vehicleSelector);
+
+        $.getJSON('api/Make')
+            .success(function (data) { UpdateSelector(makeSelector, data) })
+            .fail(function () { alert("Ajax database get of Makes failed") });
+
+        if (getSelectedID(makeSelector) > 0) {
+            UpdateFromModels();
+        }
+        else {
+            submitTitle = "Add a make";
+            selectorTitle = "Select a make";
+        }
+    }
+
+    function UpdateFromModels() {
+
+        clearSelector(modelSelector);
+        clearSelector(vehicleSelector);
+
+        $.getJSON("api/Make/" + getSelectedID(makeSelector))
+                .success(function (data) { UpdateSelector(modelSelector, data) })
+                .fail(function () { alert("Ajax database get of Models failed") });
+
+        if (getSelectedID(modelSelector) > 0) {
+            UpdateFromVehicles();
+        }
+        else {
+            submitTitle = "Add a model";
+            selectorTitle = "Select a model or make";
+        }
+    }
+
+    function UpdateFromVehicles() {
+
+        clearSelector(vehicleSelector);
+
+        $.getJSON('api/Model/' + getSelectedID(modelSelector))
+                .success(function (data) { UpdateSelector(vehicleSelector, data) })
+                .fail(function () { alert("Ajax database get of VINS failed") });
+    }
+
+    function GetVehicle() {
+        alert("VEHICLE FOUND");
+    }
+
+    function checksubmit(source, event) {
+        if (event.key == 'Enter') {
+            var value = source.value;
+            source.value = "";
+            submit(value);
+        }
+    }
+
+    function submit(text) {
+        if (getSelectedID(makeSelector) > 0) {
+            if (getSelectedID(modelSelector) > 0) {
+                if (getSelectedID(vehicleSelector) > 0) {
+                    return;
+                }
+                else {
+                    $.post("api/Model/" + getSelectedID(modelSelector), { Name: text }, "application/json")
+                        .success(function () { UpdateFromVehicles() })
+                        .fail(function () { alert("Ajax database post of vin: " + text + " failed") });
+                    return;
+                }
+            }
+            else {
+                $.post("api/Make/" + getSelectedID(makeSelector), { Name: text }, "application/json")
+                    .success(function () { UpdateFromModels() })
+                    .fail(function () { alert("Ajax database post of model: " + text + " failed") });
+                return;
+            }
+        }
+        else {
+            $.post("api/Make", { Name: text }, "application/json")
+                .success(function () { UpdateFromMakes() })
+                .fail(function () { alert("Ajax database post of make: " + text + " failed") });
+            return;
+        }
+    }
+</script>
