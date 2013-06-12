@@ -12,10 +12,10 @@ namespace Rent.Controllers
     {
         private VehicleContext db = new VehicleContext();
 
-        [HttpGet]
+        [Queryable]
         public IEnumerable<Model> Get()
         {
-            return db.Models;
+            return db.Models.AsEnumerable<Model>();
         }
 
         [HttpGet]

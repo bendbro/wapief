@@ -82,7 +82,7 @@
 
         $.getJSON('api/Make')
             .success(function (data) { UpdateSelector(makeSelector, data) })
-            .fail(function () { alert("Ajax database get of Makes failed") });
+            .fail(function () { alert("OData database get of Makes failed") });
 
         if (getSelectedID(makeSelector) > 0) {
             UpdateFromModels();
@@ -98,9 +98,9 @@
         clearSelector(modelSelector);
         clearSelector(vehicleSelector);
 
-        $.getJSON("api/Make/" + getSelectedID(makeSelector))
+        $.getJSON("api/Model?$filter=MakeID eq "+getSelectedID(makeSelector))
                 .success(function (data) { UpdateSelector(modelSelector, data) })
-                .fail(function () { alert("Ajax database get of Models failed") });
+                .fail(function () { alert("Odata database get of Models failed") });
 
         if (getSelectedID(modelSelector) > 0) {
             UpdateFromVehicles();
@@ -115,9 +115,9 @@
 
         clearSelector(vehicleSelector);
 
-        $.getJSON('api/Model/' + getSelectedID(modelSelector))
+        $.getJSON('api/Vehicle?$filter=ModelID eq ' + getSelectedID(modelSelector))
                 .success(function (data) { UpdateSelector(vehicleSelector, data) })
-                .fail(function () { alert("Ajax database get of VINS failed") });
+                .fail(function () { alert("OData database get of VINS failed") });
     }
 
     function GetVehicle() {

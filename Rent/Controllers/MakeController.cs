@@ -12,10 +12,10 @@ namespace Rent.Controllers
     {
         private VehicleContext db = new VehicleContext();
 
-        [HttpGet]
+        [Queryable]
         public HttpResponseMessage Get()
         {
-            return Request.CreateResponse(HttpStatusCode.OK, db.Makes);
+            return Request.CreateResponse(HttpStatusCode.OK, db.Makes.AsEnumerable<Make>());
         }
 
         [HttpGet]

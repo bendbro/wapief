@@ -13,6 +13,25 @@ namespace Rent.Models
         public DbSet<Model> Models { get; set; }
     }
 
+    public class Make
+    {
+        //data
+        public int ID { get; set; }
+        public string Name { get; set; }
+        //links
+        public string ModelIDs { get; set; }
+
+        //for access to IDs
+        public void AddID(int id)
+        {
+            ModelIDs = intstring.Add(ModelIDs, id);
+        }
+        public IEnumerable<int> GetIDs()
+        {
+            return intstring.Get(ModelIDs);
+        }
+    }
+
     public class Model
     {
         //data
@@ -30,25 +49,6 @@ namespace Rent.Models
         public IEnumerable<int> GetIDs()
         {
             return intstring.Get(VehicleIDs);
-        }
-    }
-
-    public class Make
-    {
-        //data
-        public int ID { get; set; }
-        public string Name { get; set; }
-        //links
-        public string ModelIDs { get; set; }
-
-        //for access to IDs
-        public void AddID(int id)
-        {
-            ModelIDs = intstring.Add(ModelIDs, id);
-        }
-        public IEnumerable<int> GetIDs()
-        {
-            return intstring.Get(ModelIDs);
         }
     }
 
