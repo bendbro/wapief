@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace Rent.Controllers
@@ -12,16 +13,14 @@ namespace Rent.Controllers
     {
         private VehicleContext db = new VehicleContext();
 
-        [HttpGet]
-        public IEnumerable<Vehicle> Get()
+        public async Task<IEnumerable<Vehicle>> Get()
         {
-            return db.Vehicles;
+            return await Task.Run(() => db.Vehicles.AsEnumerable<Vehicle>());
         }
 
-        [HttpGet]
-        public Vehicle Get(int vehicleID)
+        public async Task<Vehicle> Get(int id)
         {
-            return db.Vehicles.Find(vehicleID);
+            return await Task.Run(() => db.Vehicles.Find(id));
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace Rent.Controllers
@@ -12,35 +13,41 @@ namespace Rent.Controllers
     {
         private VehicleContext db = new VehicleContext();
 
-        [HttpGet]
-        public HttpResponseMessage Get()
+        public async Task<HttpResponseMessage> Get()
         {
-            return Request.CreateResponse(HttpStatusCode.OK, db.Makes);
+            return await Task.Run(async () =>
+                Request.CreateResponse(HttpStatusCode.OK, 
+                await Task.Run(() => db.Makes)));
         }
 
-        [HttpGet]
-        public HttpResponseMessage Get([FromUri] int id)
+        public async Task<HttpResponseMessage> Get([FromUri] int id)
         {
-            return Request.CreateResponse(HttpStatusCode.OK, db.Makes.Find(id).GetIDs().Select(mid => db.Models.Find(mid)));
+            return await Task.Run(async () =>
+                Request.CreateResponse(HttpStatusCode.OK, 
+                await Task.Run(() => db.Makes.Find(id).GetIDs().Select(mid => db.Models.Find(mid)))));
         }
 
-        [HttpPost]
-        public HttpResponseMessage Post(Make make)
+        public async Task<HttpResponseMessage> Post(Make make)
         {
-            db.Makes.Add(make);
-            db.SaveChanges();
-            return Request.CreateResponse(HttpStatusCode.OK);
+            await Task.Run(() =>
+            {
+                db.Makes.Add(make);
+                db.SaveChanges();
+            });
+            return await Task.Run(() => Request.CreateResponse(HttpStatusCode.OK));
         }
         
-        [HttpPost]
-        public HttpResponseMessage Post([FromUri] int id, Model model)
+        public async Task<HttpResponseMessage> Post([FromUri] int id, Model model)
         {
-            model.MakeID = id;
-            db.Models.Add(model);
-            db.SaveChanges();
-            db.Makes.Find(id).AddID(model.ID);
-            db.SaveChanges();
-            return Request.CreateResponse(HttpStatusCode.OK);
+            await Task.Run(() =>
+            {
+                model.MakeID = id;
+                db.Models.Add(model);
+                db.SaveChanges();
+                db.Makes.Find(id).AddID(model.ID);
+                db.SaveChanges();
+            });
+            return await Task.Run(() => Request.CreateResponse(HttpStatusCode.OK));
         }
 
         /* http://localhost:30378/api/Make
